@@ -1,0 +1,1 @@
+{"name":"bankassist-hci","version":"1.0.0","private":true,"type":"module","scripts":{"test":"node --test tests/*.test.mjs","start":"npx --yes http-server . -p 5180","check":"node --check engine.js && node --check main.js"},"description":"HCI Assignment 2: deterministic banking transaction complaint assistant"}

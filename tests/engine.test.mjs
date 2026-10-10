@@ -1,0 +1,25 @@
+import assert from 'node:assert/strict';import {menu,transition,classify,looksSensitive} from '../engine.js';
+const now=new Date('2026-10-10T12:00:00Z');let cases={},current=menu(),checks=0;
+function input(v){const out=transition(current.state,v,cases,now);current=out;if(out.effect?.kind==='save')cases[out.effect.record.id]=out.effect.record;checks++;return out}
+assert.equal(classify('I want to track my complaint').length,2);
+assert.equal(looksSensitive('PIN: 1234'),true);
+input('report');assert.equal(current.state.step,'category');
+input('failed');assert.equal(current.state.step,'amount');
+input('0');assert.equal(current.state.step,'amount');
+input('2500');assert.equal(current.state.step,'date');
+input('2026-22-01');assert.equal(current.state.step,'date');
+input('2026-10-01');assert.equal(current.state.step,'description');
+input('PIN: 1234');assert.equal(current.state.step,'description');
+input('Failed transaction but charged');assert.equal(current.state.step,'confirm');
+input('not sure');assert.equal(current.state.step,'confirm');
+input('back');assert.equal(current.state.step,'description');
+input('Money deducted for failed payment');assert.equal(current.state.step,'confirm');
+input('confirm');assert.equal(current.state.mode,'completed');assert.equal(Object.keys(cases).length,1);
+const id=Object.keys(cases)[0];input('track');input(id);assert.match(current.messages[0],/Status: Received/);
+input('menu');input('refund');assert.equal(current.state.mode,'refund');
+input('human');assert.equal(current.state.mode,'human');
+input('restart');assert.equal(current.state.mode,'menu');
+input('nonsense');assert.match(current.messages[0],/didn’t recognize/);
+input('report');input('failed');input('cancel');assert.equal(current.state.mode,'menu');
+input('exit');assert.equal(current.state.mode,'ended');
+console.log('PASS: '+checks+' chatbot transitions + assertions; complaint saved/tracked; error, undo, cancel, restart, five intents.');
