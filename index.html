@@ -1,27 +1,28 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="description" content="BankAssist human-centered banking complaints chatbot demonstration">
-<title>BankAssist — Banking Complaints Made Simpler</title><link rel="stylesheet" href="./styles.css"></head>
+<meta name="description" content="BankAssist support for transaction questions and complaints">
+<meta name="theme-color" content="#0d2334"><title>BankAssist | Help with your banking</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="./styles.css"></head>
 <body><div class="shell">
 <aside class="sidebar" aria-label="Support navigation">
-<div class="logo"><span class="symbol">◈</span> Bank<span>Assist</span></div>
-<p class="tagline">Your guide through transaction concerns.</p>
-<div class="section-label">SUPPORT TASKS</div>
+<a class="brand" href="./" aria-label="BankAssist home">
+<span class="brand-icon" aria-hidden="true"><svg viewBox="0 0 48 48" width="34" height="34" fill="none"><rect x="2" y="2" width="44" height="44" rx="14" fill="#B2F3DA"/><path d="M14 26.5L21 33L35 16" stroke="#153A38" stroke-width="4.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M15 15H24" stroke="#153A38" stroke-width="3" stroke-linecap="round"/></svg></span>
+<span class="brand-word">bank<span>assist</span><small>.</small></span></a>
+<p class="side-heading">YOUR SPACE</p>
 <nav class="nav" id="navigation" aria-label="Conversation tasks"></nav>
-<div class="sidebar-bottom"><div class="privacy"><strong>Demo environment</strong><p>No bank connection or real payments. Do not enter PINs, OTPs, passwords, or account/card numbers.</p></div><div class="sidebar-caption">HCI Assignment 02 · Prototype v1.0</div></div>
+<div class="sidebar-bottom"><div class="security"><span class="security-mark" aria-hidden="true">●</span><div><strong>Privacy first</strong><p>Never share your PIN, OTP, or banking password.</p></div></div><span class="demo-note">Educational demo · No real banking access</span></div>
 </aside>
 <main class="workspace">
-<header class="top"><div><p class="eyebrow">CUSTOMER CARE / INTERACTIVE PROTOTYPE</p><h1>Support that makes sense.</h1><p class="intro">Tell us what happened. We'll guide you through the next steps.</p></div><div class="demo-indicator"><i></i> Demo available</div></header>
+<header class="top"><div><p class="eyebrow">WE'RE HERE TO HELP</p><h1>Hi there, how can we help?</h1><p class="intro">A little help goes a long way. Choose a topic or start chatting.</p></div><span class="demo-indicator"><span></span> Support assistant</span></header>
 <section class="chat-panel" aria-label="BankAssist virtual support conversation">
-<div class="chat-top"><div class="agent-avatar" aria-hidden="true">✦</div><div class="agent-info"><strong>BankAssist Virtual Agent</strong><span>Step-by-step transaction support</span></div><div class="chat-actions"><button type="button" id="back" title="Undo previous form step">↶ <span>Back</span></button><button type="button" id="restart" title="Restart conversation">↻ <span>Restart</span></button></div></div>
-<div id="progress" class="progress" role="status" aria-live="polite"><span id="progress-text">Choose a task to begin</span><div class="progress-line"><div id="progress-fill"></div></div></div>
-<div class="messages" id="messages" role="log" aria-label="Conversation messages" aria-live="polite" aria-relevant="additions">
-</div>
+<div class="chat-top"><div class="agent-avatar" aria-hidden="true">b<span>.</span></div><div class="agent-info"><strong>BankAssist</strong><span><i></i> Ready to help</span></div><div class="chat-actions"><button type="button" id="back" title="Go to previous step" aria-label="Go back"><span aria-hidden="true">↶</span> <span>Back</span></button><button type="button" id="restart" title="Start a new conversation" aria-label="Restart conversation"><span aria-hidden="true">↻</span> <span>Restart</span></button></div></div>
+<div id="progress" class="progress" role="status" aria-live="polite"><span id="progress-text">Choose a support task</span><div class="progress-line"><div id="progress-fill"></div></div></div>
+<div class="messages" id="messages" role="log" aria-label="Conversation messages" aria-live="polite" aria-relevant="additions"></div>
 <div id="suggestions" class="suggestions" aria-label="Suggested replies"></div>
-<form id="message-form" class="composer" autocomplete="off"><label class="sr-only" for="message-input">Type your message</label><input id="message-input" type="text" maxlength="280" placeholder="Type your reply here..." aria-describedby="input-hint"><button class="send" type="submit" aria-label="Send message">Send <span aria-hidden="true">➤</span></button></form>
-<div class="input-hint" id="input-hint">Try “help”, “menu”, “back”, “restart” or “exit” at any time.</div>
-</section><footer class="footer"><span>Designed around clarity, control, feedback & error prevention</span><button id="clear-data" type="button">Clear demo records</button></footer>
-</main></div>
-<div id="toast" class="toast" role="status" aria-live="polite"></div>
-<script type="module" src="./main.js"></script>
-</body></html>
+<form id="message-form" class="composer" autocomplete="off"><label class="sr-only" for="message-input">Your message</label><input id="message-input" type="text" maxlength="280" placeholder="Write a message…" aria-describedby="input-hint"><button class="send" type="submit" aria-label="Send message"><span>Send</span><svg viewBox="0 0 24 24" width="19" height="19" fill="none" aria-hidden="true"><path d="M4 12H20M13 5L20 12L13 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button></form>
+<div class="input-hint" id="input-hint">For a fresh start, use Restart. Your demo complaints stay in this browser.</div>
+</section><footer class="footer"><span>BankAssist is a prototype, not a real bank service.</span><button id="clear-data" type="button">Clear demo data</button></footer>
+</main></div><div id="toast" class="toast" role="status" aria-live="polite"></div>
+<script type="module" src="./main.js"></script></body></html>
