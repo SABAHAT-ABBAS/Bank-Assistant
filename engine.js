@@ -35,9 +35,9 @@ function start(state,id){
   const next={...clone(state),mode:id,step:'',draft:{},ended:false};
   if(id==='report'){next.step='category';return response(next,'I can help you prepare a demo transaction complaint. What type of issue occurred?',CATEGORIES.map(c=>({label:c.label,value:c.id})).concat([{label:'Cancel',value:'cancel'}]));}
   if(id==='track'){next.step='case';return response(next,'Enter your complaint reference, such as BA-100001. You may try the sample case.',choices(['Use sample case','BA-100001'],['Main menu','menu']));}
-  if(id==='refund')return response(next,'Refunds depend on the bank, payment method and investigation. Check the transaction status, keep your reference number and report an unresolved deduction through the official bank channel. This demo cannot issue refunds or predict timelines.',choices(['File complaint','report'],['Track case','track'],['Main menu','menu']));
-  if(id==='transaction')return response(next,'For a failed or pending payment, check your statement and reference first. For a transfer to the wrong recipient, contact your real bank immediately. Never enter a card number, PIN, OTP or password into this demo.',choices(['Report issue','report'],['Refund guidance','refund'],['Human support','human']));
-  if(id==='human')return response(next,'This is a university demonstration; no live agent is connected. For real issues, use the verified phone number on your bank card or official banking app. If fraud is suspected, contact your bank urgently.',choices(['Main menu','menu'],['File complaint','report']));
+  if(id==='refund'){next.step='refund-type';return response(next,'What refund issue are you facing? Choose a scenario to get relevant next steps.',choices(['Failed payment, money deducted','failed'],['Merchant refund pending','merchant'],['Duplicate charge','duplicate'],['Transfer sent incorrectly','wrong'],['Main menu','menu']));}
+  if(id==='transaction'){next.step='transaction-type';return response(next,'Which transaction problem do you need help with?',choices(['Failed payment','failed'],['Pending transfer','pending'],['Wrong recipient','wrong'],['Unrecognized transaction','unknown'],['Main menu','menu']));}
+  if(id==='human'){next.step='human-reason';return response(next,'I can guide you to the right support channel, but I cannot connect you to a real agent. What do you need help with?',choices(['Suspected fraud or lost card','fraud'],['Unresolved complaint','complaint'],['General bank enquiry','general'],['Main menu','menu']));}
   return menu();
 }
 export function menu(){return response(fresh(),'Welcome! I’m BankAssist, a simulated banking support assistant. I can help you file or track a demo complaint, understand refund steps, get transaction guidance, or find human support. What would you like to do?',topChoices());}
@@ -61,6 +61,7 @@ export function transition(previous,input,cases={},today=new Date()){
   }
   if(ACTIONS.some(a=>a.id===s))return start(previous,s);
   if(s==='help')return resume(previous,'Here is what you can do at this step.');
+  if(['refund','transaction','human'].includes(previous.mode))return guidanceStep(previous,text);
   if(previous.mode==='report')return reportStep(previous,text,today);
   if(previous.mode==='track'){
     const id=text.toUpperCase().replace(/\s/g,'');
@@ -71,12 +72,48 @@ export function transition(previous,input,cases={},today=new Date()){
   }
   return resume(previous,'Choose a related action or return to the main menu.');
 }
+const GUIDANCE = {
+ refund:{
+  failed:['If the money was deducted but the payment failed: (1) check your statement for a pending or reversed entry, (2) save the transaction date and reference, (3) contact the bank through official support if it remains unresolved. A refund is not guaranteed by this demo.'],
+  merchant:['For a merchant refund: (1) check the merchant cancellation or refund confirmation, (2) check your bank statement, (3) contact the merchant, then your bank if needed. Actual timelines vary.'],
+  duplicate:['For a duplicate charge: (1) compare the two entries and their status, (2) keep the dates and references, (3) report the duplicate to your bank using an official channel.'],
+  wrong:['For an incorrect transfer, contact your bank immediately through its verified contact channel. Reversal may not be possible; do not send further money to anyone promising recovery.']
+ },
+ transaction:{
+  failed:['Failed payment: confirm the transaction status in your official banking app, avoid repeated payment until you verify the first attempt, and note the reference if funds were deducted.'],
+  pending:['Pending transfer: check the transaction details and status in your official banking app. Do not resend until the first attempt is resolved. Contact bank support if it remains pending.'],
+  wrong:['Wrong recipient: contact your bank immediately with your transaction reference. Do not disclose account credentials here; recovery depends on bank processes and is not guaranteed.'],
+  unknown:['Unrecognized charge: contact your bank urgently via its official number or app, review recent account activity, and ask about securing the account and disputing the charge.']
+ },
+ human:{
+  fraud:['Urgent support: use the verified number printed on your bank card or inside its official app. Ask about securing your account or card immediately. This demo cannot block a card or contact an agent.'],
+  complaint:['For an unresolved complaint: have your reference ID ready and reach the bank using its official contact page, app or branch. You may also view your demo complaint status here.'],
+  general:['For general bank support: open your bank official app or website, use its listed support contact or visit an authorized branch. Avoid phone numbers from unverified messages.']
+ }
+};
+const GUIDE_OPTIONS={
+ refund:choices(['Failed payment / deducted','failed'],['Merchant refund','merchant'],['Duplicate charge','duplicate'],['Wrong transfer','wrong'],['Main menu','menu']),
+ transaction:choices(['Failed payment','failed'],['Pending transfer','pending'],['Wrong recipient','wrong'],['Unrecognized charge','unknown'],['Main menu','menu']),
+ human:choices(['Fraud / lost card','fraud'],['Unresolved complaint','complaint'],['General enquiry','general'],['Main menu','menu'])
+};
+function guidanceStep(previous,text){
+ const type=previous.mode, s=normalize(text), table=GUIDANCE[type];
+ if(previous.step.endsWith('-type')||previous.step==='human-reason'){
+   if(!table[s])return response(previous,'I could not match that issue. Choose one of the options below, or type menu to return.',GUIDE_OPTIONS[type]);
+   const next={...clone(previous),step:'follow-up',draft:{topic:s},history:[...previous.history,clone(previous)]};
+   return response(next,[...table[s], 'Would you like to take another step?'],choices(['File a demo complaint','report'],['Track a demo complaint','track'],['Explore another issue','another'],['Human support','human'],['Main menu','menu']));
+ }
+ if(s==='another')return start(previous,type);
+ if(s==='report'||s==='track'||s==='human')return start(previous,s);
+ if(table[s]){const next={...clone(previous),draft:{topic:s}};return response(next,[...table[s],'What would you like to do next?'],choices(['File a complaint','report'],['Track complaint','track'],['Explore another issue','another'],['Main menu','menu']));}
+ return response(previous,'Choose a next step below. This is an educational prototype, not a live banking channel.',choices(['File a demo complaint','report'],['Track a demo complaint','track'],['Explore another issue','another'],['Human support','human'],['Main menu','menu']));
+}
 function resume(st,message){
   const buttons=st.mode==='report' ? (
     st.step==='category'?CATEGORIES.map(c=>({label:c.label,value:c.id})):
     st.step==='confirm'?choices(['Submit complaint','confirm'],['Edit previous answer','back'],['Cancel','cancel']):
     choices(['Back','back'],['Cancel','cancel'])
-  ): st.mode==='track'?choices(['Sample ID','BA-100001'],['Main menu','menu']):topChoices();
+  ): st.mode==='track'?choices(['Sample ID','BA-100001'],['Main menu','menu']):GUIDE_OPTIONS[st.mode]||(st.mode==='completed'?topChoices():topChoices());
   const prompt=st.mode==='report'?{
     category:'Select the type of transaction issue.',
     amount:'Enter the amount in PKR, e.g. 2500.',
